@@ -51,7 +51,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated() // 인증 되어야 한다..
                 .and()
-                .formLogin();
+                .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .loginProcessingUrl("/login_proc")
+                .successForwardUrl("/")
+        ;
 
     }
 }
