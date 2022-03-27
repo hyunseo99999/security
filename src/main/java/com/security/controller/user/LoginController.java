@@ -6,18 +6,28 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Controller
 public class LoginController {
 
     @GetMapping("/login")
-    public String login() {
+    public String login( @RequestParam(value = "error", required = false) Boolean error
+                        , @RequestParam(value = "exception", required = false) String exception, Model model) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("error", error);
+        model.addAttribute("param", map);
+        model.addAttribute("exception", exception);
+
         return "user/login/login";
     }
 
