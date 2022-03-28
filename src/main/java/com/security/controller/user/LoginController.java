@@ -1,5 +1,7 @@
 package com.security.controller.user;
 
+import com.security.domain.Account;
+import com.security.security.service.AccountContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -40,6 +42,17 @@ public class LoginController {
         }
 
         return "redirect:/";
+    }
+
+    @GetMapping("/denied")
+    public String denied(@RequestParam(value = "exception", required = false) String exception, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Account account = (Account) authentication.getPrincipal();
+        model.addAttribute("username", account.getUsername());
+        model.addAttribute("exception", exception);
+
+
+        return "user/login/denied";
     }
 
 }

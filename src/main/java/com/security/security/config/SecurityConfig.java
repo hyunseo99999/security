@@ -1,6 +1,8 @@
 package com.security.security.config;
 
+import com.security.security.common.FormAuthenticationDetailsSource;
 import com.security.security.common.FormWebAuthenticationDetails;
+import com.security.security.handler.CustomAccessDeniedHandler;
 import com.security.security.handler.CustomAuthenticationSuccessHandler;
 import com.security.security.provider.CustomAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -26,13 +29,16 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private AuthenticationDetailsSource authenticationDetailsSource;
+    private FormAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
     private AuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
     private AuthenticationFailureHandler authenticationFailureHandler;
+
+    @Autowired
+    private AccessDeniedHandler accessDeniedHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -66,12 +72,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .loginPage("/login")
-                .permitAll()
                 .loginProcessingUrl("/login_proc")
+                .defaultSuccessUrl("/")
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .failureHandler(authenticationFailureHandler)
-                .successHandler(authenticationSuccessHandler);
+                .successHandler(authenticationSuccessHandler)
+                .permitAll()
+                .and()
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler())
+                .and().csrf().disable()
+        ;
 
 
+    }
+
+    public AccessDeniedHandler accessDeniedHandler() {
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+        return accessDeniedHandler;
     }
 }
