@@ -2,6 +2,7 @@ package com.security.security.config;
 
 import com.security.security.common.FormAuthenticationDetailsSource;
 import com.security.security.common.FormWebAuthenticationDetails;
+import com.security.security.filter.AjaxLoginProcessingFilter;
 import com.security.security.handler.CustomAccessDeniedHandler;
 import com.security.security.handler.CustomAuthenticationSuccessHandler;
 import com.security.security.provider.CustomAuthenticationProvider;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,13 +29,14 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @EnableWebSecurity
 @Slf4j
 @Configuration
+@Order(1)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private FormAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    private AuthenticationSuccessHandler authenticationSuccessHandler;
+    private AuthenticationSuccessHandler formAuthenticationSuccessHandler;
 
     @Autowired
     private AuthenticationFailureHandler authenticationFailureHandler;
@@ -76,17 +80,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/")
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .failureHandler(authenticationFailureHandler)
-                .successHandler(authenticationSuccessHandler)
+                .successHandler(formAuthenticationSuccessHandler)
                 .permitAll()
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
-                .and().csrf().disable()
         ;
 
 
     }
 
+    @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
         accessDeniedHandler.setErrorPage("/denied");
